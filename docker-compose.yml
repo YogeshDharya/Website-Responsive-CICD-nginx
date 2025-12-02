@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  web:
+    image: instantprachi/website-nginx:latest   #TODO: Replace with your Docker Hub image I used mine
+    container_name: website_nginx
+    ports:
+      - "80:80"
+    restart: always
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600   # Checks for updates every hour
+    restart: always

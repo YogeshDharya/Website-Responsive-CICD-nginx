@@ -1,0 +1,7 @@
+.git
+*.pem
+*.tfstate
+node_modules
+ansible/
+IaC/
+README.md
