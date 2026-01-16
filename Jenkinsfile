@@ -36,11 +36,9 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-            ansiblePlaybook(
-            playbook: 'ansible/deploy.yml',
-            inventory: 'ansible/hosts',
-            extras: '--extra-vars "image=instantprachi/website-nginx:latest"'
-            )
+                script{
+                    sh "docker run -d -p 80:80 yogeshdharya/website-nginx:latest"
+                }
         }
     }
 

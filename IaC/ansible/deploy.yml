@@ -23,13 +23,13 @@
 
     - name: Pull Docker image from Docker Hub
       community.docker.docker_image:
-        name: instantprachi/website-nginx:latest
+        name: yogeshdharya/website-nginx:latest
         source: pull
 
     - name: Run Prachi Website container
       community.docker.docker_container:
         name: website
-        image: instantprachi/website-nginx:latest
+        image: yogeshdharya/website-nginx:latest
         state: started
         restart_policy: always
         ports:
