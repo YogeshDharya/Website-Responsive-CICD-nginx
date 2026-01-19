@@ -3,48 +3,73 @@ provider "aws" {
 }
 
 resource "aws_key_pair" "deployer_key" {
-  key_name   = "enter key pair"  #This is where I kept my key pair name
-  public_key = "/path/2/your-key.pub"  #Directory where my .pem file existed 
+  key_name   = var.key_name 
+  public_key = file(var.key_path)
 }
 
-resource "aws_security_group" "web_sg" {
-  name_prefix = "web-sg-"
-  description = "Allow SSH and HTTP"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+resource "aws_vpc" "assignment_vpc"{
+  cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  tags = {
+    Name = "Null Class VPC"
   }
 }
 
-resource "aws_instance" "web_instance" {
+resource "aws_internet_gateway" "assignment_igw" {
+  vpc_id = aws_vpc.assignment_vpc.id
+  tags = {Name="assignment-igw"}
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id = aws_vpc.assignment_vpc.id
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone = "${var.aws_region}a"
+  tags = {
+    Name = "Assignment Public Subnet"
+  }
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.assignment_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+}
+
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+resource "aws_security_group" "assignment_sg" {
+  name = var.sg_name
+  vpc_id = aws_vpc.assignment_vpc.id
+  description = var.sg_description
+}
+
+data "aws_ami" "amazon_linux_2023"{
+  most_recent = var.most_recent
+  owners = var.ami_owners
+  filter{
+    name = "name"
+    values = [var.ami_name_filter]
+  }
+  filter{
+    name = "virtualization-type"
+    values = [var.ami_virtualization_filter]
+  }
+}
+resource "aws_instance" "docker_host" {
   ami           = var.ami_id
   instance_type = var.instance_type
-  key_name      = var.
+  key_name      = var.key_name
+  subnet_id = var.subnet_id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  user_data     = file("${path.module}/user_data.sh")
+  user_data     = file("${path.module}/scripts/user_data.sh")
 
   tags = {
-    Name = "webserver-terraform"
+    Name = "Null Class Web Server"
   }
-}
-
-output "instance_public_ip" {
-  value = aws_instance.web_instance.public_ip
 }
