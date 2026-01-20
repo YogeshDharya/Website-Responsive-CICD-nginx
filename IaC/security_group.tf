@@ -5,14 +5,14 @@ resource "aws_security_group" "ssh_access" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.allowed_ssh_cidr
+    cidr_blocks = var.allowed_tcp_cidr
     description = "SSH access from my IP"
     }
    ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["122.181.103.20/32"]
+    cidr_blocks = var.allowed_tcp_cidr
     description = "HTTP access from my IP"
     }
    egress{
@@ -23,7 +23,7 @@ resource "aws_security_group" "ssh_access" {
     cidr_blocks = ["0.0.0.0/0"]
     }
   tags = {
-    Name        = "${var.environment}-ssh-access-sg"
-    Environment = var.environment
+    Name        = "${var.tags["Environment"]}-ssh-access-sg"
+    Environment = var.tags.Environment
   }
 }

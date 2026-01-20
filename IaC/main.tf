@@ -7,45 +7,55 @@ resource "aws_key_pair" "deployer_key" {
   public_key = file(var.key_path)
 }
 
-resource "aws_vpc" "assignment_vpc"{
-  cidr_block = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  tags = {
-    Name = "Null Class VPC"
-  }
+# resource "aws_vpc" "assignment_vpc"{
+#   cidr_block = "10.0.0.0/16"
+#   enable_dns_hostnames = true
+#   tags = {
+#     Name = "Null Class VPC"
+#   }
+# }
+
+# resource "aws_internet_gateway" "assignment_igw" {
+#   vpc_id = aws_vpc.assignment_vpc.id
+#   tags = {Name="Assignment IGW"}
+# }
+
+# resource "aws_subnet" "public_subnet" {
+#   vpc_id = aws_vpc.assignment_vpc.id
+#   cidr_block = "10.0.1.0/24"
+#   map_public_ip_on_launch = true
+#   availability_zone = "${var.aws_region}a"
+#   tags = {
+#     Name = "Assignment Public Subnet"
+#   }
+# }
+
+# resource "aws_route_table" "public_rt" {
+#   vpc_id = aws_vpc.assignment_vpc.id
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.igw.id
+#   }
+# }
+
+# resource "aws_route_table_association" "public_assoc" {
+#   subnet_id      = aws_subnet.public_subnet.id
+#   route_table_id = aws_route_table.public_rt.id
+# }
+
+data "aws_vpc" "default" {
+  default = true
 }
 
-resource "aws_internet_gateway" "assignment_igw" {
-  vpc_id = aws_vpc.assignment_vpc.id
-  tags = {Name="assignment-igw"}
-}
-
-resource "aws_subnet" "public_subnet" {
-  vpc_id = aws_vpc.assignment_vpc.id
-  cidr_block = "10.0.1.0/24"
-  map_public_ip_on_launch = true
+data "aws_subnet" "default"{
+  vpc_id = data.aws_vpc.default.id
   availability_zone = "${var.aws_region}a"
-  tags = {
-    Name = "Assignment Public Subnet"
-  }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.assignment_vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-}
-
-resource "aws_route_table_association" "public_assoc" {
-  subnet_id      = aws_subnet.public_subnet.id
-  route_table_id = aws_route_table.public_rt.id
+  default_for_az = true
 }
 
 resource "aws_security_group" "assignment_sg" {
   name = var.sg_name
-  vpc_id = aws_vpc.assignment_vpc.id
+  vpc_id = data.aws_vpc.default.id
   description = var.sg_description
 }
 
@@ -61,15 +71,18 @@ data "aws_ami" "amazon_linux_2023"{
     values = [var.ami_virtualization_filter]
   }
 }
+
 resource "aws_instance" "docker_host" {
   ami           = var.ami_id
   instance_type = var.instance_type
   key_name      = var.key_name
-  subnet_id = var.subnet_id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
+  subnet_id = data.aws_subnet.default.id
+  vpc_security_group_ids = [aws_security_group.assignment_sg.id]
   user_data     = file("${path.module}/scripts/user_data.sh")
-
   tags = {
     Name = "Null Class Web Server"
+    Environment = var.tags.Environment
+    Project     = var.tags.Project
+    ManagedBy   = var.tags.ManagedBy
   }
 }
