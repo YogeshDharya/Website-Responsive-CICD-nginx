@@ -54,9 +54,34 @@ data "aws_subnet" "default"{
 }
 
 resource "aws_security_group" "assignment_sg" {
-  name = var.sg_name
+  name = "${var.environment}-ssh-http-access"
   vpc_id = data.aws_vpc.default.id
-  description = var.sg_description
+  description = "Security group for SSH & HTTP access for the ${var.environment} environment"
+   ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_tcp_cidr
+    description = "SSH access from my IP"
+    }
+   ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_tcp_cidr
+    description = "HTTP access from my IP"
+    }
+   egress{
+    description = "Allow all outbound traffic"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    }
+  tags = {
+    Name        = "${var.tags["Environment"]}-ssh-http-access-sg"
+    Environment = var.tags.Environment
+  }
 }
 
 data "aws_ami" "amazon_linux_2023"{
@@ -73,7 +98,7 @@ data "aws_ami" "amazon_linux_2023"{
 }
 
 resource "aws_instance" "docker_host" {
-  ami           = var.ami_id
+  ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
   key_name      = var.key_name
   subnet_id = data.aws_subnet.default.id
