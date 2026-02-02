@@ -4,16 +4,16 @@
   become: true
   tasks:
 
-    - name: Ensure apt cache is up to date (Ubuntu)
-      ansible.builtin.apt:
+    - name: Ensure yum cache is up to date (Amazon Linux/RedHat)
+      ansible.builtin.yum:
         update_cache: yes
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "RedHat"
 
-    - name: Install Docker (if not already installed)
+    - name: Install Docker
       ansible.builtin.package:
-        name: docker.io
+        name: docker
         state: present
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "RedHat"
 
     - name: Start and enable Docker service
       ansible.builtin.service:
@@ -21,16 +21,24 @@
         state: started
         enabled: true
 
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: "ec2-user"
+        groups: docker
+        append: yes
+
     - name: Pull Docker image from Docker Hub
       community.docker.docker_image:
         name: yogeshdharya/website-nginx:latest
         source: pull
-
-    - name: Run Prachi Website container
+      
+    - name: Run Pulled Website container
       community.docker.docker_container:
-        name: website
+        name: null-class-website
         image: yogeshdharya/website-nginx:latest
         state: started
         restart_policy: always
+        pull: true
+        recreate: true
         ports:
           - "80:80"

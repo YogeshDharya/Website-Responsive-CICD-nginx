@@ -42,12 +42,9 @@ variable "tags" {
 variable "environment" {
   description = "Environment Name"
   type = string
+  default = "Development"
 }
 
-variable "subnet_id"{
-  description = "Subnet Id for Amazon Linux EC2"
-  type = string
-}
 
 variable "ami_name_filter" {
   type = string 
@@ -60,7 +57,6 @@ variable "ami_virtualization_filter" {
   description = "Virtualization type filter for AMI"
   default = "hvm"
 }
-
 
 variable "allowed_tcp_cidr"{
   description = "Valid CIDR blocks"

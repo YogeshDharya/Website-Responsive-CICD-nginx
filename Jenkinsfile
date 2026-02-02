@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "yogeshdharya/website-nginx:latest"
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'  // Jenkins credential ID
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'
     }
 
     stages {
@@ -37,7 +37,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script{
-                    sh "docker run -d -p 80:80 yogeshdharya/website-nginx:latest"
+                    sh "docker run -d -p 80:80 --name null-class-assignment $DOCKER_IMAGE"
                 }
         }
     }
