@@ -33,6 +33,16 @@ Before running Terraform or Ansible:
    - `key_name`: your AWS EC2 key pair name.
    - `<EC2_PUBLIC_IP>`: the public IP of your EC2 instance.
    - `/path/to/your-key.pem`: path to your private key (do not commit this file).
-2. Run `terraform init` and `terraform apply` from the `IaC/` directory.
-3. Use the generated EC2 IP in the `ansible/inventory.ini` file before running the playbook.
+2. Create dev.tfvars for providing values for the variables in the variables.tf file. 
+3. Run `terraform init` and `terraform apply` from the `IaC/` directory.
+4. Use the generated EC2 IP in the `ansible/inventory.ini` file before running the playbook.
 
+## 🔐 Security Notice
+
+Sensitive information such as:
+- AWS credentials
+- EC2 public IPs
+- SSH private key paths
+- DockerHub credentials
+
+are intentionally excluded from this repository.
