@@ -9,11 +9,11 @@ variable "instance_type" {
   type        = string
   default     = "t2.micro"
 }
-# TODO: is this for amazon linux 2 or 2023 ? 
+
 variable "ami_id" {
   description = "Enter your AMI ID for Amazon Linux 2"
   type        = string
-  default     = "ami-0fa3fe0fa7920f68e"
+  default     = "ami-0532be01f26a3de55"
 }
 
 variable "ami_owners"{
@@ -29,7 +29,6 @@ variable "sg_name"{
 variable "sg_description"{
   type = string
 }
-#FIXME: one for instance tag, environment too
 
 variable "tags" {
   description = "Common tags for all resources"
@@ -66,7 +65,7 @@ variable "allowed_tcp_cidr"{
 
 variable "most_recent"{
   type = bool
-  description = "Using the most AMI matching filters"
+  description = "Using the most recent AMI matching filters"
   default = true
 }
 
