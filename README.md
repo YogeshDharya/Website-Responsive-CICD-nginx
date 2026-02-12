@@ -16,7 +16,7 @@ This project uses a Jenkins Declarative Pipeline (`Jenkinsfile`) to automate Doc
   - **ID:** `dockerhub-credentials`
   - **Type:** Username and Password for Docker Hub
 - Create a **Pipeline job** pointing to this GitHub repository.
-- Optionally connect GitHub webhook to trigger the pipeline on every commit or pull request.
+- Connect GitHub webhook by pasting ec2 instance url to trigger the pipeline on every commit or pull request.
 
 ### 🐳 Docker & Orchestration
 - `Dockerfile` builds the static website image (based on Nginx).
